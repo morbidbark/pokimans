@@ -1,0 +1,7 @@
+[workspace]
+members = ["pokimans_client", "pokimans_server", "pokimans_common"]
+resolver="2"
+
+[workspace.dependencies]
+bevy = { version = "0.9.1", features = ["dynamic"] }
+tokio = { version = "1.23.0", features = ["full"] }
