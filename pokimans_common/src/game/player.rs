@@ -1,11 +1,13 @@
 use bevy::prelude::*;
-use bevy::render::color::Color;
-use crate::utils::Position;
 
 #[derive(Component)]
-pub struct Player {
-    pub name: String,
-    pub position: Position,
-    pub color: Color,
+pub struct Speed(pub f32);
+
+#[derive(Component)]
+pub struct Direction(pub Vec3);
+
+#[derive(Bundle)]
+pub struct PlayerBundle {
+    pub speed: Speed,
+    pub	direction: Direction,
 }
-    
