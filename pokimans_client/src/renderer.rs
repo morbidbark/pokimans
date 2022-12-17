@@ -32,7 +32,7 @@ pub fn render_map(mut commands: Commands, grass_tex: Res<GrassTextureAtlas>, map
 	});
     } 
 }
-fn compute_atlas_index(coords: &pokimans_common::utils::Coordinates) -> usize {
+fn compute_atlas_index(coords: &(i32, i32)) -> usize {
     let x = coords.0;
     let y = coords.1;
     if y == 0 {

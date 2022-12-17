@@ -35,7 +35,14 @@ pub fn handle_input(
     else if input.pressed(KeyCode::S) { new_direction += DOWN }
     else if input.pressed(KeyCode::D) { new_direction += RIGHT }
 
-    target.0 = transform.translation.round().truncate() + new_direction;
+    let new_target = transform.translation.round().truncate() + new_direction;
+
+    // Determine if the target location is traversible
+    let chunk = map.chunks.get(0).unwrap();
+    let coords = (new_target.x as i32, new_target.y as i32);
+    if chunk.get(&coords).unwrap().traversible {
+	target.0 = new_target;
+    }   
 }
 
 fn setup_camera(mut commands: Commands) {
