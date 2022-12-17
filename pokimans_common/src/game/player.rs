@@ -4,10 +4,10 @@ use bevy::prelude::*;
 pub struct Speed(pub f32);
 
 #[derive(Component)]
-pub struct Direction(pub Vec3);
+pub struct Target(pub Vec2);
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
     pub speed: Speed,
-    pub	direction: Direction,
+    pub target: Target,
 }

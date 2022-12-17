@@ -17,12 +17,12 @@ pub fn setup_map_renderer(mut commands: Commands, assets: Res<AssetServer>, mut 
 pub fn render_map(mut commands: Commands, grass_tex: Res<GrassTextureAtlas>, map: Res<map::Map>) {
     let chunk = map.chunks.get(0).unwrap(); //only 1 chunk for now
     
-    for cell in chunk {
-	let transform = Transform::from_translation(Vec3::new(cell.position.x as f32, cell.position.y as f32, 0.0));
+    for (coordinates, _) in chunk.iter() {
+	let transform = Transform::from_translation(Vec3::new(coordinates.0 as f32, coordinates.1 as f32, 0.0));
 	commands.spawn(SpriteSheetBundle { 
 	    texture_atlas: grass_tex.0.clone(),
 	    sprite: TextureAtlasSprite {
-		index: compute_atlas_index(&cell.position),
+		index: compute_atlas_index(&coordinates),
 		anchor: bevy::sprite::Anchor::BottomLeft,
 		custom_size: Some(Vec2::splat(1.0)),
 		..default()
@@ -32,9 +32,9 @@ pub fn render_map(mut commands: Commands, grass_tex: Res<GrassTextureAtlas>, map
 	});
     } 
 }
-fn compute_atlas_index(pos: &pokimans_common::utils::Position) -> usize {
-    let x = pos.x;
-    let y = pos.y;
+fn compute_atlas_index(coords: &pokimans_common::utils::Coordinates) -> usize {
+    let x = coords.0;
+    let y = coords.1;
     if y == 0 {
 	if x == 0 { 6 }
 	else if x == map::CHUNK_SIZE - 1 { 8 } 

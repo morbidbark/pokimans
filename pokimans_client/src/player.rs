@@ -1,38 +1,41 @@
 use bevy::prelude::*;
 use pokimans_common::game::player;
+use pokimans_common::game::map;
 
-const UP: Vec3 = Vec3::new(0.0, 1.0, 0.0);
-const DOWN: Vec3 = Vec3::new(0.0, -1.0, 0.0);
-const LEFT: Vec3 = Vec3::new(-1.0, 0.0, 0.0);
-const RIGHT: Vec3 = Vec3::new(1.0, 0.0, 0.0);
-const ZERO: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+const UP: Vec2 = Vec2::new(0.0, 1.0);
+const DOWN: Vec2 = Vec2::new(0.0, -1.0);
+const LEFT: Vec2 = Vec2::new(-1.0, 0.0);
+const RIGHT: Vec2 = Vec2::new(1.0, 0.0);
+const ZERO: Vec2 = Vec2::new(0.0, 0.0);
+
 
 #[derive(Component)]
 pub struct Controller;
 pub fn handle_input(
     time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut player::Speed, &mut Transform, &mut player::Direction), With<Controller>>,
+    map: Res<map::Map>,
+    mut player_props: Query<(&mut player::Speed, &mut Transform, &mut player::Target), With<Controller>>,
     mut camera: Query<&mut Transform, (With<Camera2d>, Without<Controller>)>,
 ) {
-    let mut new_direction = ZERO;
 
-    for key in input.get_pressed() {
-	match key {
-	    KeyCode::W => { new_direction += UP },
-	    KeyCode::A => { new_direction += LEFT },
-	    KeyCode::S => { new_direction += DOWN },
-	    KeyCode::D => { new_direction += RIGHT },
-	    _ => (),
-	}
+    let (speed, mut transform, mut target) = player_props.get_single_mut().unwrap();
+
+    let target_direction = target.0 - transform.translation.truncate();
+    if target_direction.length() > 0.01 {
+	transform.translation += target_direction.extend(0.0).normalize() * time.delta_seconds() * speed.0;
+	camera.get_single_mut().unwrap().translation = transform.translation; 
+	return;
     }
+ 
+    // Determine player target direction
+    let mut new_direction = ZERO;
+    if input.pressed(KeyCode::W) { new_direction += UP }
+    else if input.pressed(KeyCode::A) { new_direction += LEFT }
+    else if input.pressed(KeyCode::S) { new_direction += DOWN }
+    else if input.pressed(KeyCode::D) { new_direction += RIGHT }
 
-    let (speed, mut transform, mut direction) = query.get_single_mut().unwrap();
-    direction.0 = new_direction;
-    transform.translation += direction.0 * time.delta_seconds() * speed.0;
-
-    //move camera to player position
-   camera.get_single_mut().unwrap().translation = transform.translation; 
+    target.0 = transform.translation.round().truncate() + new_direction;
 }
 
 fn setup_camera(mut commands: Commands) {
@@ -45,29 +48,23 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn setup_player(mut commands: Commands, assets: Res<AssetServer>) {
-    let player = commands.spawn((
+    commands.spawn((
 	player::PlayerBundle {
 	    speed: player::Speed(2.5), // Tiles per second
-	    direction: player::Direction(ZERO),
+	    target: player::Target(Vec2::splat(1.0)),
 	},
-	SpatialBundle {
-	    transform: Transform::from_translation(Vec3::new(2.0, 2.0, 1.0)),
+	Controller,
+	SpriteBundle {
+	    texture: assets.load("player.png"),
+	    transform: Transform::from_translation(Vec3::splat(1.0)),
+	    sprite: Sprite {
+		anchor: bevy::sprite::Anchor::BottomLeft,
+		custom_size: Some(Vec2::new(1.0, 2.0)),
+		..default()
+	    },
 	    ..default()
 	},
-	Controller
-    )).id();
-
-    let player_sprite = commands.spawn(SpriteBundle {
-	texture: assets.load("player.png"),
-	sprite: Sprite {
-	    anchor: bevy::sprite::Anchor::BottomLeft,
-	    custom_size: Some(Vec2::new(1.0, 2.0)),
-	    ..default()
-	},
-	..default()
-    }).id();
-
-    commands.entity(player).add_child(player_sprite);
+    ));
 }
     
 pub struct PlayerPlugin;

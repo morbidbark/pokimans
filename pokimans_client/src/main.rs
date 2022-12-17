@@ -9,10 +9,13 @@ fn main() {
     // default_nearest prevents blurry pixel art
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugin(pokimans_client::player::PlayerPlugin)
+
         .add_startup_system_to_stage(StartupStage::PreStartup, setup_async_runtime)
         .add_startup_system_to_stage(StartupStage::PreStartup, renderer::setup_map_renderer)
+
         .add_startup_system(setup_client)
         .add_startup_system_to_stage(StartupStage::PreStartup, map::setup_map)
         .add_startup_system(renderer::render_map)
+
         .run();
 }
