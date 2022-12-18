@@ -1,18 +1,23 @@
 use std::io;
 use std::sync::Arc;
-use bevy::prelude::{Res, Commands};
+use bevy::prelude::{Res, Commands, Resource};
 use tokio::sync::{Mutex, mpsc};
 use tokio::net::TcpStream;
 use pokimans_common::tokio::Tokio;
-use pokimans_common::protocol::Message;
-use pokimans_common::net::Network;
+use pokimans_common::protocol::{ClientMessage, ServerMessage};
 
+
+#[derive(Resource)]
+pub struct Network {
+    pub rx: mpsc::Receiver<ServerMessage>,
+    pub tx: mpsc::Sender<ClientMessage>,
+}
 
 pub fn setup_client(mut commands: Commands, tk: Res<Tokio>) {
     println!("Connecting to pokimans network");
 
-    let (rx_in, rx) = mpsc::channel::<Message>(64);
-    let (tx, mut tx_out) = mpsc::channel::<Message>(64);
+    let (rx_in, rx) = mpsc::channel::<ServerMessage>(64);
+    let (tx, mut tx_out) = mpsc::channel::<ClientMessage>(64);
 
     tk.runtime.spawn(async {
 	let stream = Arc::new(Mutex::new(
@@ -29,7 +34,7 @@ pub fn setup_client(mut commands: Commands, tk: Res<Tokio>) {
 		    Ok(_) => {
 			let string = String::from_utf8_lossy(&buf); 
 			println!("Received message {}", &string);
-			let message: Message = ron::from_str(string.trim_matches(char::from(0))).unwrap();
+			let message: ServerMessage = ron::from_str(string.trim_matches(char::from(0))).unwrap();
 			rx_in.send(message).await.unwrap();
 		    }
 		    Err(e) => {
@@ -61,5 +66,6 @@ pub fn setup_client(mut commands: Commands, tk: Res<Tokio>) {
     commands.insert_resource(network);	
 }
     
-
- 
+// Client code to handle messages originating from server
+pub fn handle_server_messages() {
+}

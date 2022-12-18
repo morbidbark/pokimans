@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use pokimans_common::game::player;
 use pokimans_common::game::map;
 use pokimans_common::protocol;
-use pokimans_common::net::Network;
+use crate::net::Network;
 
 const UP: Vec2 = Vec2::new(0.0, 1.0);
 const DOWN: Vec2 = Vec2::new(0.0, -1.0);
@@ -47,7 +47,7 @@ pub fn handle_input(
     let coords = (new_target.x as i32, new_target.y as i32);
     if chunk.get(&coords).unwrap().traversible {
 	target.0 = new_target;
-	network.tx.blocking_send(protocol::Message::PlayerMove { target: coords }).unwrap();
+	network.tx.blocking_send(protocol::ClientMessage::PlayerMove { target: coords }).unwrap();
     }   
 }
 
