@@ -1,5 +1,6 @@
 use std::sync::Arc;
-use bevy::prelude::{Commands, Res, ResMut, Resource};
+use std::collections::HashMap;
+use bevy::prelude::*;
 use tokio::sync::{Mutex, mpsc};
 use tokio::net::{TcpListener, TcpStream};
 
@@ -11,6 +12,9 @@ pub struct Network {
     pub rx: mpsc::Receiver<(String, ClientMessage)>,
     pub tx: mpsc::Sender<ServerMessage>,
 }
+
+#[derive(Resource)]
+pub struct PlayerIdMap(HashMap<String, u32>);
 
 pub fn setup_server(mut commands: Commands, tk: Res<Tokio>) {
     println!("Establishing pokimans network");
@@ -57,11 +61,21 @@ pub fn setup_server(mut commands: Commands, tk: Res<Tokio>) {
     });
 
     let network = Network { rx, tx };
-    commands.insert_resource(network);	
+    commands.insert_resource(network);
 }
 
 // Server code to handle messages originating from client
-pub fn handle_client_messages(mut network: ResMut<Network>) {
+pub fn handle_client_messages(mut commands: Commands, mut network: ResMut<Network>, mut player_id_map: ResMut<PlayerIdMap>) {
     while let Some((addr, message)) = network.rx.blocking_recv() {
+	match message {
+	    ClientMessage::PlayerJoin => {
+		let player_id = commands.spawn(SpatialBundle { ..default() }).id().index();
+		player_id_map.0.insert(addr, player_id);
+	    },
+	    ClientMessage::PlayerMove { target }=> {
+		let player_id = player_id_map.0.get(&addr).unwrap();
+	    },
+	    _ => (),
+	}
     }
 }
