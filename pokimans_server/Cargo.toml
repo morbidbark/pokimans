@@ -8,4 +8,6 @@ edition = "2021"
 [dependencies]
 bevy = { workspace = true }
 tokio = {workspace = true }
+ron = { workspace = true }
+serde = { workspace = true }
 pokimans_common = { path = "../pokimans_common" }

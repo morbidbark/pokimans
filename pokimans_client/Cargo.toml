@@ -9,6 +9,8 @@ channel = "nightly"
 [dependencies]
 bevy = { workspace = true }
 tokio = {workspace = true }
+ron = { workspace = true }
+serde = { workspace = true }
 pokimans_common = { path = "../pokimans_common" }
 
 bevy_console = { git = "https://github.com/RichoDemus/bevy-console.git", branch = "main" }
