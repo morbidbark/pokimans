@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+
 use bevy::prelude::*;
+
 
 pub const CHUNK_SIZE: i32 = 16;
 
@@ -29,6 +31,7 @@ fn make_square_chunk() -> HashMap<(i32, i32), Cell> {
 pub struct Map {
     pub chunks: Vec<HashMap<(i32, i32), Cell>>,
 }
+
 pub fn setup_map(mut commands: Commands) {
     commands.insert_resource(Map { chunks: vec![make_square_chunk()] });
 }

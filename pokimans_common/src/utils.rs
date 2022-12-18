@@ -1,10 +1,11 @@
-use bevy::prelude::Component;
+use bevy::prelude::*;
 
-#[derive(Component, Debug, Hash)]
-pub struct Coordinates(pub i32, pub i32);
-impl PartialEq for Coordinates {
-    fn eq(&self, other: &Self) -> bool {
-	return self.0 == other.0 && self.1 == other.1
-    }
+
+pub struct Vecs;
+impl Vecs {
+    pub const UP: Vec2 = Vec2::new(0.0, 1.0);
+    pub const DOWN: Vec2 = Vec2::new(0.0, -1.0);
+    pub const LEFT: Vec2 = Vec2::new(-1.0, 0.0);
+    pub const RIGHT: Vec2 = Vec2::new(1.0, 0.0);
+    pub const ZERO: Vec2 = Vec2::new(0.0, 0.0);
 }
-impl Eq for Coordinates {}

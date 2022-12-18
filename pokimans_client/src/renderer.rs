@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use pokimans_common::game::map;
+use pokimans_common::map::{CHUNK_SIZE, Map};
 
 
 #[derive(Resource)]
@@ -14,7 +14,7 @@ pub fn setup_map_renderer(mut commands: Commands, assets: Res<AssetServer>, mut 
     commands.insert_resource(GrassTextureAtlas(atlas_handle));
 }
 
-pub fn render_map(mut commands: Commands, grass_tex: Res<GrassTextureAtlas>, map: Res<map::Map>) {
+pub fn render_map(mut commands: Commands, grass_tex: Res<GrassTextureAtlas>, map: Res<Map>) {
     let chunk = map.chunks.get(0).unwrap(); //only 1 chunk for now
     
     for (coordinates, _) in chunk.iter() {
@@ -37,15 +37,15 @@ fn compute_atlas_index(coords: &(i32, i32)) -> usize {
     let y = coords.1;
     if y == 0 {
 	if x == 0 { 6 }
-	else if x == map::CHUNK_SIZE - 1 { 8 } 
+	else if x == CHUNK_SIZE - 1 { 8 } 
 	else { 7 }
-    } else if y == map::CHUNK_SIZE - 1 {
+    } else if y == CHUNK_SIZE - 1 {
 	if x == 0 { 0 }
-	else if x == map::CHUNK_SIZE - 1 { 2 } 
+	else if x == CHUNK_SIZE - 1 { 2 } 
 	else { 1 }
     } else {
 	if x == 0 { 3 }
-	else if x == map::CHUNK_SIZE - 1 { 5 } 
+	else if x == CHUNK_SIZE - 1 { 5 } 
 	else { 4 }
     }
 }

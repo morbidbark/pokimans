@@ -1,5 +1,5 @@
-pub mod tokio;
-pub mod game;
-pub mod utils;
+pub mod map;
+pub mod movement;
 pub mod protocol;
-pub mod net;
+pub mod tokio;
+pub mod utils;

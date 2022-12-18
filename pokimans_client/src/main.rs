@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use pokimans_common::tokio::setup_async_runtime;
-use pokimans_common::game::map;
+use pokimans_common::map::setup_map;
+use pokimans_common::movement::{update_targets, move_entities};
 use pokimans_client::net::setup_client;
 use pokimans_client::renderer;
 
@@ -14,8 +15,11 @@ fn main() {
         .add_startup_system_to_stage(StartupStage::PreStartup, renderer::setup_map_renderer)
 
         .add_startup_system(setup_client)
-        .add_startup_system_to_stage(StartupStage::PreStartup, map::setup_map)
+        .add_startup_system_to_stage(StartupStage::PreStartup, setup_map)
         .add_startup_system(renderer::render_map)
+
+        .add_system(update_targets)
+        .add_system(move_entities)
 
         .run();
 }
