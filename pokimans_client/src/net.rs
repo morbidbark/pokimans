@@ -63,9 +63,10 @@ pub fn setup_client(mut commands: Commands, tk: Res<Tokio>) {
     });
     
     let network = Network { rx, tx };
+    network.tx.blocking_send(ClientMessage::RequestPlayerEntity).unwrap();
     commands.insert_resource(network);	
 }
-    
+
 // Client code to handle messages originating from server
 pub fn handle_server_messages() {
 }

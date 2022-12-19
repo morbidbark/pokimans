@@ -50,24 +50,3 @@ pub fn move_entities(
 	}
     }
 }
-
-pub fn update_targets(
-    map: Res<crate::map::Map>,
-    mut events: EventReader<MoveEvent>,
-    mut query: Query<(&Transform, &mut Target), With<MovementController>>,
-) {
-    for MoveEvent { entity, direction } in events.iter() {
-	match query.get_mut(*entity) {
-	    Ok((transform, mut target)) => {
-		let new_target = transform.translation.round().truncate() + *direction;
-		let chunk = map.chunks.get(0).unwrap();
-		let coords = (new_target.x as i32, new_target.y as i32);
-		if chunk.get(&coords).unwrap().traversible {
-		    target.0 = new_target;
-		    //network.tx.blocking_send(protocol::ClientMessage::PlayerMove { target: coords }).unwrap();
-		}   
-	    },
-	    Err(e) => eprintln!("{}", e),
-	}
-    }
-}

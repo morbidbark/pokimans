@@ -1,11 +1,16 @@
 use std::sync::Arc;
 use std::collections::HashMap;
+use bevy::ecs::entity;
 use bevy::prelude::*;
+use pokimans_common::movement::MovementControllerBundle;
 use tokio::sync::{Mutex, mpsc};
 use tokio::net::{TcpListener, TcpStream};
 
-use pokimans_common::tokio::Tokio;
-use pokimans_common::protocol::{ClientMessage, ServerMessage};
+use pokimans_common::{
+    movement::{MoveEvent, MovementController},
+    protocol::{ClientMessage, ServerMessage},
+    tokio::Tokio,
+};
 
 #[derive(Resource)]
 pub struct Network {
@@ -14,7 +19,7 @@ pub struct Network {
 }
 
 #[derive(Resource)]
-pub struct PlayerIdMap(HashMap<String, u32>);
+pub struct PlayerMap(HashMap<String, Entity>);
 
 pub fn setup_server(mut commands: Commands, tk: Res<Tokio>) {
     println!("Establishing pokimans network");
@@ -47,7 +52,6 @@ pub fn setup_server(mut commands: Commands, tk: Res<Tokio>) {
 			Ok(0) => continue,
 			Ok(_) => {
 			    let string = String::from_utf8_lossy(&buf); 
-			    println!("Received message {}", &string);
 			    let message: ClientMessage = ron::from_str(string.trim_matches(char::from(0))).unwrap();
 			    rx_in.send((stream.peer_addr().unwrap().to_string(), message)).await.unwrap();
 			},
@@ -62,20 +66,20 @@ pub fn setup_server(mut commands: Commands, tk: Res<Tokio>) {
 
     let network = Network { rx, tx };
     commands.insert_resource(network);
+
+    let player_map: HashMap<String, Entity> = HashMap::new();
+    commands.insert_resource(PlayerMap(player_map));
 }
 
-// Server code to handle messages originating from client
-pub fn handle_client_messages(mut commands: Commands, mut network: ResMut<Network>, mut player_id_map: ResMut<PlayerIdMap>) {
-    while let Some((addr, message)) = network.rx.blocking_recv() {
-	match message {
-	    ClientMessage::PlayerJoin => {
-		let player_id = commands.spawn(SpatialBundle { ..default() }).id().index();
-		player_id_map.0.insert(addr, player_id);
-	    },
-	    ClientMessage::PlayerMove { target }=> {
-		let player_id = player_id_map.0.get(&addr).unwrap();
-	    },
-	    _ => (),
-	}
+pub fn handle_request_player_entity() {}
+
+pub fn handle_player_move() {}
+
+pub struct NetworkPlugin;
+impl Plugin for NetworkPlugin {
+    fn build(&self, app: &mut App) {
+	app
+	    .add_system(handle_request_player_entity)
+	    .add_system(handle_player_move);
     }
 }

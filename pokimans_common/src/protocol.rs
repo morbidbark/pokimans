@@ -1,22 +1,27 @@
 use serde::{Serialize, Deserialize};
+use bevy::prelude::*;
 
 // Message that originate from client
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ClientMessage {
+    RequestPlayerEntity,
     PlayerJoin,
     PlayerMove {
-	target: (i32, i32),
+	direction: Vec2,
     },
 }
 
 // Messages originating from server
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ServerMessage {
+    PlayerEntitySpawned {
+	id: Entity,
+    },
     PlayerJoin {
-	id: u32, // Player entity id ON SERVER. Will be different on client most likely.
+	id: Entity, // Player entity id ON SERVER. Will be different on client most likely.
     },
     PlayerMove {
-	id: u32,
-	target: (i32, i32),
+	id: Entity,
+	direction: Vec2,
     },
 }
